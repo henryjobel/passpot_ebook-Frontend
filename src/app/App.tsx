@@ -18,11 +18,16 @@ import {
   UrgencySection,
 } from "./components/Closing";
 import { DEFAULT_CONTENT, DEFAULT_EBOOK, DEFAULT_PAYMENT, fetchPaymentStatus, fetchProducts, fetchStorefront } from "./lib/api";
+import { pushPageView, pushViewContent, toTrackingItems } from "./lib/tracking";
 
 function PaymentStatusPage({ type }: { type: "success" | "pending" | "failed" | "cancelled" }) {
   const [status, setStatus] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const orderId = new URLSearchParams(window.location.search).get("order_id") || "";
+
+  useEffect(() => {
+    pushPageView(type === "success" ? "order-received" : `payment-${type}`);
+  }, [type]);
 
   useEffect(() => {
     if (!orderId || type === "failed" || type === "cancelled") return;
@@ -128,6 +133,21 @@ export default function App() {
       .then(([storefront, products]) => setStore({ ...storefront, products }))
       .catch((error) => toast.error(error.message || "Backend connect করা যাচ্ছে না"));
   }, [isAdmin, paymentRoute]);
+
+  useEffect(() => {
+    if (isAdmin || paymentRoute) return;
+    pushPageView("product");
+  }, [isAdmin, paymentRoute]);
+
+  useEffect(() => {
+    if (isAdmin || paymentRoute || !store.ebook.title) return;
+    pushViewContent({
+      value: Number(store.ebook.price || 0),
+      items: toTrackingItems([
+        { id: "main-ebook", title: store.ebook.title, price: Number(store.ebook.price || 0), type: "ebook" },
+      ]),
+    });
+  }, [isAdmin, paymentRoute, store.ebook.title, store.ebook.price]);
 
   const scrollToOffer = useCallback(() => {
     document

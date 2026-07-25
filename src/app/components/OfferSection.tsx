@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Content, Ebook, Payment, Product } from "../lib/api";
 import { submitManualOrder } from "../lib/api";
+import { pushInitiateCheckout, pushPurchase, toTrackingItems } from "../lib/tracking";
 import { SectionHeading, toBn } from "./primitives";
 
 type CheckoutStep = "details" | "method" | "payment";
@@ -68,6 +69,10 @@ export function OfferSection({
   ];
 
   function openCheckout() {
+    pushInitiateCheckout({
+      value: total,
+      items: toTrackingItems(orderItems),
+    });
     setStep("details");
     setOpen(true);
   }
@@ -107,6 +112,17 @@ export function OfferSection({
         amount: total,
         orderBump: bump,
         items: orderItems,
+      });
+      pushPurchase({
+        transactionId: data.orderId || transactionId,
+        value: total,
+        items: toTrackingItems(orderItems),
+        customer: {
+          first_name: customer.name.trim().split(/\s+/)[0] || customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          country: "BD",
+        },
       });
       const approved = data.status === "approved";
       toast.success(approved ? "Payment approved হয়েছে" : "অর্ডার রিসিভ হয়েছে", {
