@@ -357,6 +357,25 @@ export function SocialProofSection({ content }: { content?: Content }) {
               key={hasReviews ? `${item.name || "review"}-${i}` : i}
               className={`rounded-lg border ${hasReviews ? "border-border bg-card shadow-sm" : "border-dashed border-border bg-card/60"} p-5`}
             >
+              {hasReviews && (
+                <div className="mb-4 flex items-center gap-3">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name || "Customer"}
+                      className="size-12 rounded-full border border-border object-cover"
+                    />
+                  ) : (
+                    <span className="grid size-12 place-items-center rounded-full border border-border bg-muted text-sm font-bold text-secondary">
+                      {String(item.name || "R").trim().slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-primary">{item.name || "Reader"}</p>
+                    {(item.city || item.location) && <p className="truncate text-xs text-muted-foreground">{item.city || item.location}</p>}
+                  </div>
+                </div>
+              )}
               <div className={`flex gap-0.5 ${hasReviews ? "text-[#c7a15a]" : "text-muted-foreground/50"}`}>
                 {Array.from({ length: 5 }).map((_, s) => (
                   <Star

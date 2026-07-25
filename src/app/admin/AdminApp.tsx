@@ -509,6 +509,18 @@ function upsellFileField(row: any, index: number) {
   );
 }
 
+function reviewImageField(row: any, index: number) {
+  if (index > 5) return null;
+  return (
+    <FileField
+      label="Customer image upload"
+      name={`v2ReviewImage${index}`}
+      currentUrl={row.imageUrl}
+      accept="image/*"
+    />
+  );
+}
+
 function PanelShell({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-6">
@@ -1456,7 +1468,7 @@ function CmsV2Panel({ state, setState, saveSettings }: { state: AdminState; setS
                 <TextField label="Rating summary" value={v2.ratingSummary} onChange={(v) => setV2("ratingSummary", v)} />
               </FieldGrid>
               <ObjectListEditor label="Video testimonials" items={v2.videoTestimonials || []} newItem={{ name: "", location: "", quote: "", imageUrl: "", videoUrl: "" }} columns={[{ key: "name", label: "Name" }, { key: "location", label: "Location" }, { key: "quote", label: "Quote", type: "textarea" }, { key: "imageUrl", label: "Fallback Image URL" }, { key: "videoUrl", label: "YouTube Video URL" }]} onChange={(v) => setV2("videoTestimonials", v)} />
-              <ObjectListEditor label="Reviews" items={v2.reviews || []} newItem={{ name: "", text: "", rating: 5 }} columns={[{ key: "name", label: "Name" }, { key: "text", label: "Text", type: "textarea" }, { key: "rating", label: "Rating", type: "number" }]} onChange={(v) => setV2("reviews", v)} />
+              <ObjectListEditor label="Reviews" items={v2.reviews || []} newItem={{ name: "", text: "", rating: 5, imageUrl: "" }} columns={[{ key: "name", label: "Name" }, { key: "text", label: "Text", type: "textarea" }, { key: "rating", label: "Rating", type: "number" }, { key: "imageUrl", label: "Customer image URL" }]} onChange={(v) => setV2("reviews", v)} renderExtra={reviewImageField} />
             </div>
           </SectionCard>
 
