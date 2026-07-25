@@ -216,16 +216,26 @@ export function FinalCtaFooter({ ebook, content, onOrder }: { ebook: Ebook; cont
 export function StickyCtaBar({ ebook, content, onOrder }: { ebook: Ebook; content?: Content; onOrder: () => void }) {
   const v2 = content?.v2 || {};
   const [show, setShow] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 640);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const update = () => setModalOpen(document.body.classList.contains("checkout-modal-open"));
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
       className={`fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 px-4 py-3 backdrop-blur transition-transform duration-300 md:hidden ${
-        show ? "translate-y-0" : "translate-y-full"
+        show && !modalOpen ? "translate-y-0" : "translate-y-full"
       }`}
     >
       <div className="flex items-center gap-3">

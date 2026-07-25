@@ -1,5 +1,5 @@
 import { ArrowLeft, Check, Copy, Gift, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Content, Ebook, Payment, Product } from "../lib/api";
 import { submitManualOrder } from "../lib/api";
@@ -67,6 +67,11 @@ export function OfferSection({
     { id: "main-ebook", title: ebook.title, price: Number(ebook.price || 0), type: "ebook" },
     ...(bump && selectedUpsell ? [{ id: selectedUpsell.id, title: selectedUpsell.title, price: bumpPrice, type: "upsell" }] : []),
   ];
+
+  useEffect(() => {
+    document.body.classList.toggle("checkout-modal-open", open);
+    return () => document.body.classList.remove("checkout-modal-open");
+  }, [open]);
 
   function openCheckout() {
     pushInitiateCheckout({
@@ -216,8 +221,8 @@ export function OfferSection({
       </div>
 
       {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-primary/70 px-4 py-8 backdrop-blur-sm">
-          <div className="w-full max-w-[462px] overflow-hidden rounded-lg bg-card shadow-[0_32px_90px_-35px_rgba(22,35,63,0.95)]">
+        <div className="fixed inset-0 z-[70] overflow-y-auto bg-primary/70 px-4 py-5 backdrop-blur-sm sm:grid sm:place-items-center sm:py-8">
+          <div className="mx-auto flex max-h-[calc(100dvh-2.5rem)] w-full max-w-[462px] flex-col overflow-hidden rounded-lg bg-card shadow-[0_32px_90px_-35px_rgba(22,35,63,0.95)]">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-3">
                 {step !== "details" && (
@@ -240,7 +245,7 @@ export function OfferSection({
             </div>
 
             {step === "details" && (
-              <form onSubmit={continueFromDetails} className="space-y-4 p-5">
+              <form onSubmit={continueFromDetails} className="space-y-4 overflow-y-auto p-5">
                 <div className="flex items-center justify-between gap-4 rounded-lg bg-background/70 p-4">
                   <div>
                     <p className="text-sm font-black text-primary">মোট পেমেন্ট</p>
@@ -259,7 +264,7 @@ export function OfferSection({
             )}
 
             {step === "method" && (
-              <div className="space-y-4 p-5">
+              <div className="space-y-4 overflow-y-auto p-5">
                 <div className="rounded-lg bg-primary px-5 py-3 text-center font-black text-primary-foreground">পেমেন্ট পদ্ধতি নির্বাচন করুন</div>
                 <div className="grid grid-cols-2 gap-3">
                   <PaymentMethodCard label="bKash" sublabel="Bkash Personal" color="#6d1a2c" onClick={() => { setCustomer((s) => ({ ...s, method: "bkash" })); setStep("payment"); }} />
@@ -269,7 +274,7 @@ export function OfferSection({
             )}
 
             {step === "payment" && (
-              <form onSubmit={submitOrder} className="space-y-4 p-5">
+              <form onSubmit={submitOrder} className="space-y-4 overflow-y-auto p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
                 <div className="text-center text-3xl font-black italic" style={{ color: customer.method === "bkash" ? "#6d1a2c" : "#b91c1c" }}>
                   {customer.method === "bkash" ? "bKash" : "Nagad"}
                 </div>
