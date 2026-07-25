@@ -1,7 +1,7 @@
 export const API_URL =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_BACKEND_URL ||
-  "http://localhost:5000";
+  (import.meta.env.PROD ? "https://ebook-backend-one.vercel.app" : "http://localhost:5000");
 
 export type Ebook = {
   title: string;
@@ -196,4 +196,18 @@ export async function submitManualOrder(payload: {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || "Order submit failed");
   return data;
+}
+
+export async function fetchPaymentStatus(orderId: string) {
+  const res = await fetch(`${API_URL}/api/orders/${orderId}/payment-status`, { cache: "no-store" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "Payment status check failed");
+  return data as {
+    orderId: string;
+    status: "pending" | "approved" | "rejected";
+    invoiceId?: string;
+    customerEmail?: string;
+    downloadReady: boolean;
+    downloadUrl: string;
+  };
 }
