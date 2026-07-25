@@ -300,6 +300,10 @@ export function ForWhomSection({ content }: { content?: Content }) {
 /* ---------- Section 6: Social Proof (placeholder / empty state) ---------- */
 export function SocialProofSection({ content }: { content?: Content }) {
   const v2 = content?.v2 || {};
+  const videoTestimonials = v2.videoTestimonials || [];
+  const reviews = v2.reviews?.length ? v2.reviews : content?.testimonials || [];
+  const hasVideos = videoTestimonials.length > 0;
+  const hasReviews = reviews.length > 0;
   return (
     <section className="bg-muted/60 py-16 md:py-24">
       <div className="mx-auto max-w-6xl px-5">
@@ -310,33 +314,72 @@ export function SocialProofSection({ content }: { content?: Content }) {
         />
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="flex aspect-video flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card/60 text-muted-foreground"
-            >
-              <span className="grid size-12 place-items-center rounded-full bg-muted">
-                ▶
-              </span>
-              <p className="text-sm">ভিডিও রিভিউ · শীঘ্রই আসছে</p>
-            </div>
+          {(hasVideos ? videoTestimonials : [0, 1, 2]).slice(0, 3).map((item: any, i: number) => (
+            hasVideos ? (
+              <a
+                key={`${item.name || "video"}-${i}`}
+                className="group relative flex aspect-video overflow-hidden rounded-lg border border-border bg-card shadow-sm"
+                href={item.videoUrl || "#"}
+                target={item.videoUrl ? "_blank" : undefined}
+                rel={item.videoUrl ? "noreferrer" : undefined}
+              >
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.name || "Video review"} className="h-full w-full object-cover transition group-hover:scale-105" />
+                ) : (
+                  <div className="grid h-full w-full place-items-center bg-muted text-muted-foreground">Video review</div>
+                )}
+                <span className="absolute inset-0 bg-primary/25" />
+                <span className="absolute left-1/2 top-1/2 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-card/90 text-secondary shadow-lg">
+                  ▶
+                </span>
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary/80 to-transparent p-4 text-primary-foreground">
+                  <strong className="block">{item.name || "Reader"}</strong>
+                  <span className="text-sm text-primary-foreground/80">{item.location || item.quote || ""}</span>
+                </span>
+              </a>
+            ) : (
+              <div
+                key={i}
+                className="flex aspect-video flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card/60 text-muted-foreground"
+              >
+                <span className="grid size-12 place-items-center rounded-full bg-muted">
+                  ▶
+                </span>
+                <p className="text-sm">ভিডিও রিভিউ · শীঘ্রই আসছে</p>
+              </div>
+            )
           ))}
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {[0, 1, 2].map((i) => (
+          {(hasReviews ? reviews : [0, 1, 2]).slice(0, 3).map((item: any, i: number) => (
             <div
-              key={i}
-              className="rounded-lg border border-dashed border-border bg-card/60 p-5"
+              key={hasReviews ? `${item.name || "review"}-${i}` : i}
+              className={`rounded-lg border ${hasReviews ? "border-border bg-card shadow-sm" : "border-dashed border-border bg-card/60"} p-5`}
             >
-              <div className="flex gap-0.5 text-muted-foreground/50">
+              <div className={`flex gap-0.5 ${hasReviews ? "text-[#c7a15a]" : "text-muted-foreground/50"}`}>
                 {Array.from({ length: 5 }).map((_, s) => (
-                  <Star key={s} className="size-4" />
+                  <Star
+                    key={s}
+                    className={`size-4 ${hasReviews && s < Math.max(1, Math.min(5, Number(item.rating || 5))) ? "fill-current" : ""}`}
+                  />
                 ))}
               </div>
-              <div className="mt-3 h-2 w-4/5 rounded bg-muted" />
-              <div className="mt-2 h-2 w-3/5 rounded bg-muted" />
-              <div className="mt-4 h-2 w-24 rounded bg-muted" />
+              {hasReviews ? (
+                <>
+                  <p className="mt-3 leading-relaxed text-foreground">{item.text || item.quote || ""}</p>
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    <strong className="text-primary">{item.name || "Reader"}</strong>
+                    {item.city || item.location ? ` · ${item.city || item.location}` : ""}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="mt-3 h-2 w-4/5 rounded bg-muted" />
+                  <div className="mt-2 h-2 w-3/5 rounded bg-muted" />
+                  <div className="mt-4 h-2 w-24 rounded bg-muted" />
+                </>
+              )}
             </div>
           ))}
         </div>
