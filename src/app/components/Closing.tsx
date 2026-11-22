@@ -2,7 +2,9 @@ import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown, Clock, MessageCircle, Facebook, Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Content, Ebook } from "../lib/api";
-import { CTAButton, SectionHeading, toBn } from "./primitives";
+import { CTAButton, SectionHeading } from "./primitives";
+
+const money = (value: number) => `$${Number(value || 0).toFixed(2)}`;
 
 /* ---------- Section 10: FAQ ---------- */
 export function FaqSection({ content }: { content?: Content }) {
@@ -103,7 +105,7 @@ export function UrgencySection({ ebook, content, onOrder }: { ebook: Ebook; cont
           className="mt-8 bg-accent-foreground text-secondary shadow-[0_6px_0_0_rgba(0,0,0,0.25)] hover:shadow-[0_8px_0_0_rgba(0,0,0,0.25)]"
           onClick={onOrder}
         >
-          {(v2.ctaBanners?.[0]?.buttonText || v2.cta?.text || "এখনই সংগ্রহ করুন")} — ৳{toBn(Number(ebook.price || 399))}
+          {(v2.ctaBanners?.[0]?.buttonText || v2.cta?.text || "এখনই সংগ্রহ করুন")} — {money(Number(ebook.price || 399))}
         </CTAButton>
       </div>
     </section>
@@ -125,7 +127,7 @@ export function FinalCtaFooter({ ebook, content, onOrder }: { ebook: Ebook; cont
             {v2.finalSubtext || content?.finalText || "আপনার স্বপ্নের পড়াশোনার পথে একটা ভুল ফাইল যেন বাধা না হয়।"}
           </p>
           <CTAButton className="mt-8" onClick={onOrder}>
-            {(v2.finalCtaButtonText || "এখনই বইটি সংগ্রহ করুন")} — ৳{toBn(Number(ebook.price || 399))}
+            {(v2.finalCtaButtonText || "এখনই বইটি সংগ্রহ করুন")} — {money(Number(ebook.price || 399))}
           </CTAButton>
         </div>
       </section>
@@ -242,7 +244,7 @@ export function StickyCtaBar({ ebook, content, onOrder }: { ebook: Ebook; conten
         <div className="leading-tight">
           <p className="text-xs text-muted-foreground">{v2.brandName || content?.brandName || "রিজেকশন ফাইল"}</p>
           <p className="text-lg text-secondary" style={{ fontWeight: 700 }}>
-            ৳{toBn(Number(ebook.price || 399))}
+            {money(Number(ebook.price || 399))}
           </p>
         </div>
         <CTAButton size="md" className="flex-1" onClick={onOrder}>

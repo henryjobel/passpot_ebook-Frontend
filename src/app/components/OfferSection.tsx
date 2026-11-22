@@ -2,13 +2,14 @@ import { ArrowLeft, Check, Copy, Gift, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Content, Ebook, Payment, Product } from "../lib/api";
-import { submitManualOrder } from "../lib/api";
+import { createAlipayCheckout, submitManualOrder } from "../lib/api";
 import { pushInitiateCheckout, pushPurchase, toTrackingItems } from "../lib/tracking";
-import { SectionHeading, toBn } from "./primitives";
+import { SectionHeading } from "./primitives";
 
 type CheckoutStep = "details" | "method" | "payment";
 
 const TRANSACTION_ID_PATTERN = /^(?=.*[a-z])(?=.*\d)[a-z0-9]{10}$/i;
+const money = (value: number) => `$${Number(value || 0).toFixed(2)}`;
 
 export function OfferSection({
   ebook,
@@ -32,7 +33,7 @@ export function OfferSection({
     name: "",
     phone: "",
     email: "",
-    method: "bkash" as "bkash" | "nagad",
+    method: "bkash" as "bkash" | "nagad" | "alipay",
     transactionId: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -113,6 +114,7 @@ export function OfferSection({
     try {
       const data = await submitManualOrder({
         ...customer,
+        method: customer.method === "nagad" ? "nagad" : "bkash",
         transactionId,
         amount: total,
         orderBump: bump,
@@ -145,6 +147,17 @@ export function OfferSection({
     }
   }
 
+  async function startAlipayCheckout() {
+    setSubmitting(true);
+    try {
+      const data = await createAlipayCheckout({ name: customer.name, phone: customer.phone, email: customer.email, orderBump: bump, items: orderItems });
+      window.location.assign(data.checkoutUrl);
+    } catch (error: any) {
+      toast.error(error.message || "Could not start Alipay checkout");
+      setSubmitting(false);
+    }
+  }
+
   return (
     <section id="offer" className="mx-auto max-w-3xl scroll-mt-6 px-5 py-16 md:py-24">
       <SectionHeading eyebrow="আজকের অফার" title="একটু নিচে যান। স্ক্রল করলে একটি জিনিস দেখতে পাবেন" />
@@ -152,7 +165,7 @@ export function OfferSection({
       <div className="mx-auto mt-10 max-w-[520px] overflow-hidden rounded-lg border border-border bg-card shadow-[0_28px_80px_-58px_rgba(22,35,63,0.55)]">
         <div className="bg-primary px-6 py-7 text-center text-primary-foreground">
           <p className="text-sm font-semibold text-white/70">একটু নিচে যান। স্ক্রল করলে একটি জিনিস দেখতে পাবেন</p>
-          <h3 className="mt-1 text-5xl font-black leading-none text-[#c7a15a] md:text-6xl">মাত্র {toBn(Number(ebook.price || 399))} টাকা</h3>
+          <h3 className="mt-1 text-5xl font-black leading-none text-[#c7a15a] md:text-6xl">{money(Number(ebook.price || 399))}</h3>
         </div>
 
         <div className="space-y-5 px-5 py-6 md:px-6">
@@ -165,7 +178,7 @@ export function OfferSection({
                     <Gift className="size-5 shrink-0 text-accent" />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-black text-primary">বোনাস: {bonus.title}</p>
-                      <p className="text-xs text-muted-foreground">মূল্য {toBn(bonus.value)} টাকা</p>
+                      <p className="text-xs text-muted-foreground">মূল্য {money(bonus.value)}</p>
                     </div>
                   </div>
                   <span className="shrink-0 rounded-full bg-[#c7a15a]/15 px-3 py-1 text-xs font-black text-secondary">বিনামূল্যে</span>
@@ -192,8 +205,8 @@ export function OfferSection({
                   <p className="truncate text-sm font-black text-primary">{selectedUpsell.title}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-sm font-black text-secondary">+৳{toBn(bumpPrice)}</p>
-                  <p className="text-xs text-muted-foreground line-through">৳{toBn(bumpOldPrice)}</p>
+                  <p className="text-sm font-black text-secondary">+{money(bumpPrice)}</p>
+                  <p className="text-xs text-muted-foreground line-through">{money(bumpOldPrice)}</p>
                 </div>
               </div>
             </button>
@@ -201,7 +214,7 @@ export function OfferSection({
 
           <div className="flex items-center justify-between rounded-lg bg-primary px-5 py-4 text-primary-foreground">
             <span className="text-sm text-white/75">সর্বমোট</span>
-            <span className="text-3xl font-black text-[#c7a15a]">{toBn(total)} টাকা</span>
+            <span className="text-3xl font-black text-[#c7a15a]">{money(total)}</span>
           </div>
 
           <button
@@ -210,12 +223,12 @@ export function OfferSection({
             className="flex h-14 w-full items-center justify-center gap-2 rounded-md bg-accent px-5 text-lg font-black text-accent-foreground shadow-[0_6px_0_0_#7f1414] transition hover:-translate-y-0.5"
           >
             <Check className="size-5" />
-            এখনই অর্ডার করুন - {toBn(total)} টাকা
+            এখনই অর্ডার করুন - {money(total)}
           </button>
 
           <div className="flex items-center justify-center gap-3">
-            <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">bKash</span>
-            <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">Nagad</span>
+            <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">Alipay</span>
+            <span className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">Debit / Credit Card</span>
           </div>
         </div>
       </div>
@@ -235,7 +248,7 @@ export function OfferSection({
                   <h3 className="text-2xl font-black leading-tight text-primary">
                     {step === "details" && "অর্ডার কনফার্ম করুন"}
                     {step === "method" && "পেমেন্ট করুন"}
-                    {step === "payment" && `${customer.method === "bkash" ? "bKash" : "Nagad"} পেমেন্ট`}
+                    {step === "payment" && "Alipay পেমেন্ট"}
                   </h3>
                 </div>
               </div>
@@ -249,9 +262,9 @@ export function OfferSection({
                 <div className="flex items-center justify-between gap-4 rounded-lg bg-background/70 p-4">
                   <div>
                     <p className="text-sm font-black text-primary">মোট পেমেন্ট</p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">bKash অথবা Nagad Send Money দিয়ে পেমেন্ট করুন - পরের ধাপে নম্বর ও নির্দেশনা পাবেন।</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Alipay secure checkout দিয়ে USD-তে debit বা credit card payment করুন।</p>
                   </div>
-                  <p className="shrink-0 text-3xl font-black text-secondary">{toBn(total)} টাকা</p>
+                  <p className="shrink-0 text-3xl font-black text-secondary">{money(total)}</p>
                 </div>
                 <CheckoutInput label="আপনার নাম" value={customer.name} onChange={(value) => setCustomer((s) => ({ ...s, name: value }))} />
                 <CheckoutInput label="ফোন নাম্বার" value={customer.phone} onChange={(value) => setCustomer((s) => ({ ...s, phone: value }))} />
@@ -267,8 +280,7 @@ export function OfferSection({
               <div className="space-y-4 overflow-y-auto p-5">
                 <div className="rounded-lg bg-primary px-5 py-3 text-center font-black text-primary-foreground">পেমেন্ট পদ্ধতি নির্বাচন করুন</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <PaymentMethodCard label="bKash" sublabel="Bkash Personal" color="#6d1a2c" onClick={() => { setCustomer((s) => ({ ...s, method: "bkash" })); setStep("payment"); }} />
-                  <PaymentMethodCard label="Nagad" sublabel="Nagad Personal" color="#b91c1c" onClick={() => { setCustomer((s) => ({ ...s, method: "nagad" })); setStep("payment"); }} />
+                  <PaymentMethodCard label="Alipay" sublabel="Debit / Credit Card · USD" color="#1677ff" onClick={() => { setCustomer((s) => ({ ...s, method: "alipay" })); void startAlipayCheckout(); }} />
                 </div>
               </div>
             )}
@@ -280,7 +292,7 @@ export function OfferSection({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{brandName}</div>
-                  <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{toBn(total)} BDT</div>
+                  <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{money(total)} USD</div>
                 </div>
                 <div className="overflow-hidden rounded-lg border border-border bg-card">
                   <InstructionRow>আপনার {customer.method === "bkash" ? "bKash" : "Nagad"} মোবাইল অ্যাপ খুলুন।</InstructionRow>
@@ -290,7 +302,7 @@ export function OfferSection({
                     {paymentNumber && <CopyButton onClick={() => copyText(paymentNumber, "নম্বর")} />}
                   </InstructionRow>
                   <InstructionRow>
-                    টাকার পরিমাণ <strong>{total}</strong>
+                    পেমেন্টের পরিমাণ <strong>{money(total)}</strong>
                     <CopyButton onClick={() => copyText(String(total), "Amount")} />
                   </InstructionRow>
                   <InstructionRow>Payment type হিসেবে অবশ্যই <strong>Send Money</strong> ব্যবহার করুন; Payment বা Cash Out করবেন না।</InstructionRow>

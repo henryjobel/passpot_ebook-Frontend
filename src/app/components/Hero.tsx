@@ -1,9 +1,9 @@
 import type { Content, Ebook } from "../lib/api";
-import { BookMockup, CTAButton, toBn, TrustLine } from "./primitives";
+import { BookMockup, CTAButton, TrustLine } from "./primitives";
 
 export function Hero({ ebook, content, onOrder }: { ebook: Ebook; content: Content; onOrder: () => void }) {
   const v2 = content.v2 || {};
-  const price = toBn(Number(ebook.price || 399));
+  const price = `$${Number(ebook.price || 399).toFixed(2)}`;
   return (
     <section className="relative overflow-hidden">
       {/* faint document grid / paper texture */}
@@ -36,9 +36,9 @@ export function Hero({ ebook, content, onOrder }: { ebook: Ebook; content: Conte
 
           <div className="mt-8 flex flex-col items-center gap-3 md:items-start">
             <CTAButton onClick={onOrder}>
-              {v2.heroCta || content.heroCta || "এখনই বইটি সংগ্রহ করুন"} — ৳{price}
+              {v2.heroCta || content.heroCta || "এখনই বইটি সংগ্রহ করুন"} — {price}
             </CTAButton>
-            <TrustLine className="md:justify-start" items={[v2.heroGuaranteeBadge, content.trustLine, "bKash / Nagad Payment"].filter(Boolean)} />
+            <TrustLine className="md:justify-start" items={[v2.heroGuaranteeBadge, "Alipay · USD Payment"].filter(Boolean)} />
           </div>
         </div>
 

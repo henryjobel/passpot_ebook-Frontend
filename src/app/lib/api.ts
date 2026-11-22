@@ -17,6 +17,8 @@ export type Payment = {
   bkashNumber: string;
   nagadNumber: string;
   instructions: string;
+  alipayEnabled?: boolean;
+  currency?: "USD";
 };
 
 export type Content = {
@@ -49,6 +51,8 @@ export const DEFAULT_EBOOK: Ebook = {
 export const DEFAULT_PAYMENT: Payment = {
   bkashNumber: "",
   nagadNumber: "",
+  alipayEnabled: false,
+  currency: "USD",
   instructions: "Send Money করুন, তারপর আপনার Transaction ID দিয়ে অর্ডার সাবমিট করুন।",
 };
 
@@ -196,6 +200,23 @@ export async function submitManualOrder(payload: {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || "Order submit failed");
   return data;
+}
+
+export async function createAlipayCheckout(payload: {
+  name: string;
+  phone: string;
+  email: string;
+  orderBump: boolean;
+  items: any[];
+}) {
+  const res = await fetch(`${API_URL}/api/alipay/checkout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "Could not start Alipay checkout");
+  return data as { orderId: string; checkoutUrl: string };
 }
 
 export async function fetchPaymentStatus(orderId: string) {
