@@ -9,7 +9,7 @@ import { SectionHeading } from "./primitives";
 type CheckoutStep = "details" | "method" | "payment";
 
 const TRANSACTION_ID_PATTERN = /^(?=.*[a-z])(?=.*\d)[a-z0-9]{10}$/i;
-const money = (value: number) => `$${Number(value || 0).toFixed(2)}`;
+const money = (value: number) => `CN¥${Number(value || 0).toFixed(2)}`;
 
 export function OfferSection({
   ebook,
@@ -262,7 +262,7 @@ export function OfferSection({
                 <div className="flex items-center justify-between gap-4 rounded-lg bg-background/70 p-4">
                   <div>
                     <p className="text-sm font-black text-primary">মোট পেমেন্ট</p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Alipay secure checkout দিয়ে USD-তে debit বা credit card payment করুন।</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Alipay secure checkout দিয়ে CNY-তে debit বা credit card payment করুন।</p>
                   </div>
                   <p className="shrink-0 text-3xl font-black text-secondary">{money(total)}</p>
                 </div>
@@ -279,9 +279,15 @@ export function OfferSection({
             {step === "method" && (
               <div className="space-y-4 overflow-y-auto p-5">
                 <div className="rounded-lg bg-primary px-5 py-3 text-center font-black text-primary-foreground">পেমেন্ট পদ্ধতি নির্বাচন করুন</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <PaymentMethodCard label="Alipay" sublabel="Debit / Credit Card · USD" color="#1677ff" onClick={() => { setCustomer((s) => ({ ...s, method: "alipay" })); void startAlipayCheckout(); }} />
-                </div>
+                {payment.alipayEnabled ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <PaymentMethodCard label="Alipay" sublabel="Debit / Credit Card · CNY" color="#1677ff" onClick={() => { setCustomer((s) => ({ ...s, method: "alipay" })); void startAlipayCheckout(); }} />
+                  </div>
+                ) : (
+                  <p className="rounded-lg bg-background/70 px-4 py-3 text-center text-sm text-muted-foreground">
+                    Online payment is temporarily unavailable. Please try again later.
+                  </p>
+                )}
               </div>
             )}
 
@@ -292,7 +298,7 @@ export function OfferSection({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{brandName}</div>
-                  <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{money(total)} USD</div>
+                  <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-center text-sm font-black text-primary">{money(total)} CNY</div>
                 </div>
                 <div className="overflow-hidden rounded-lg border border-border bg-card">
                   <InstructionRow>আপনার {customer.method === "bkash" ? "bKash" : "Nagad"} মোবাইল অ্যাপ খুলুন।</InstructionRow>

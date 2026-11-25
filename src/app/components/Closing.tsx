@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Content, Ebook } from "../lib/api";
 import { CTAButton, SectionHeading } from "./primitives";
 
-const money = (value: number) => `$${Number(value || 0).toFixed(2)}`;
+const money = (value: number) => `CN¥${Number(value || 0).toFixed(2)}`;
 
 /* ---------- Section 10: FAQ ---------- */
 export function FaqSection({ content }: { content?: Content }) {

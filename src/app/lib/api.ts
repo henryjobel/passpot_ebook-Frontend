@@ -18,7 +18,7 @@ export type Payment = {
   nagadNumber: string;
   instructions: string;
   alipayEnabled?: boolean;
-  currency?: "USD";
+  currency?: "CNY";
 };
 
 export type Content = {
@@ -52,7 +52,7 @@ export const DEFAULT_PAYMENT: Payment = {
   bkashNumber: "",
   nagadNumber: "",
   alipayEnabled: false,
-  currency: "USD",
+  currency: "CNY",
   instructions: "Send Money করুন, তারপর আপনার Transaction ID দিয়ে অর্ডার সাবমিট করুন।",
 };
 

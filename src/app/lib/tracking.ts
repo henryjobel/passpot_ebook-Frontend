@@ -2,7 +2,7 @@ type EcommerceItem = {
   id: string;
   item_id: string;
   item_name: string;
-  currency: "USD";
+  currency: "CNY";
   price: number;
   item_category: string;
   quantity: number;
@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-const currency = "USD" as const;
+const currency = "CNY" as const;
 
 function ensureDataLayer() {
   window.dataLayer = window.dataLayer || [];

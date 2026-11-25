@@ -3,7 +3,7 @@ import { BookMockup, CTAButton, TrustLine } from "./primitives";
 
 export function Hero({ ebook, content, onOrder }: { ebook: Ebook; content: Content; onOrder: () => void }) {
   const v2 = content.v2 || {};
-  const price = `$${Number(ebook.price || 399).toFixed(2)}`;
+  const price = `CN¥${Number(ebook.price || 399).toFixed(2)}`;
   return (
     <section className="relative overflow-hidden">
       {/* faint document grid / paper texture */}
@@ -38,7 +38,7 @@ export function Hero({ ebook, content, onOrder }: { ebook: Ebook; content: Conte
             <CTAButton onClick={onOrder}>
               {v2.heroCta || content.heroCta || "এখনই বইটি সংগ্রহ করুন"} — {price}
             </CTAButton>
-            <TrustLine className="md:justify-start" items={[v2.heroGuaranteeBadge, "Alipay · USD Payment"].filter(Boolean)} />
+            <TrustLine className="md:justify-start" items={[v2.heroGuaranteeBadge, "Alipay · CNY Payment"].filter(Boolean)} />
           </div>
         </div>
 
